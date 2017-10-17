@@ -4,7 +4,7 @@ from time import sleep
 import ModernGL
 import numpy as np
 
-from src.lib.window_creator import WindowData
+from src.helpers.window_creator import WindowData
 
 
 class GlProgram:
