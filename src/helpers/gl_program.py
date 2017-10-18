@@ -1,13 +1,13 @@
 from os.path import join
 from time import sleep
-from typing import List
 
 import ModernGL
 import numpy as np
 
 
 class GlProgram:
-    def __init__(self):
+    def __init__(self, on_add_shape_ready):
+        self.on_add_shape_ready = on_add_shape_ready
         self._indeces = []
         self._vertices = []
         self._colors = []
@@ -22,26 +22,10 @@ class GlProgram:
 
         vertex_shader = self._ctx.vertex_shader(self._read_vertex_shader())
         fragment_shader = self._ctx.fragment_shader(self._read_fragment_shader())
+
         self._prog = self._ctx.program([vertex_shader, fragment_shader])
-
-        vertices = [
-            0.0, 0.0,
-            0.4, 0.4,
-            0.1, 0.4,
-
-            -0.4, -0.4,
-            -0.1, -0.4,
-        ]
-        colors = [
-            1.0, 1.0, 1.0,
-            0.0, 1.0, 0.0,
-            0.0, 0.0, 1.0,
-            1.0, 1.0, 1.0,
-            0.0, 0.0, 1.0
-        ]
-        indices = [0, 1, 2, 0, 3, 4]
-
-        self.add_shape(vertices, indices, colors)
+        self._indeces, self._vertices, self._colors = self.on_add_shape_ready()
+        self._load_render_data()
 
     def _load_render_data(self):
         if self._ibo is not None and self._cbo is not None and self._vbo is not None:
@@ -61,18 +45,20 @@ class GlProgram:
 
         self.vao = self._ctx.vertex_array(self._prog, vao_content, self._ibo)
 
-    def add_shape(self, vertices: List[float], indeces: List[int],
-                  colors: List[int]):
-        self._indeces += indeces
-        self._vertices += vertices
-        self._colors += colors
-        self._load_render_data()
+    # We can't add the data dynamically, because the main thread blocks on render loop
+    # def add_shape(self, vertices: List[float], indeces: List[int],
+    #               colors: List[int]):
+    #     self._indeces += indeces
+    #     self._vertices += vertices
+    #     self._colors += colors
+    #     self._load_render_data()
 
     def render(self, mode=ModernGL.TRIANGLES):
+        sleep(0.032)  # 24 fps
         self._ctx.viewport = self._wnd.viewport
         self._ctx.clear(0.15, 0.15, 0.15, 1.0)
+
         self.vao.render(mode)
-        sleep(0.032)  # 24 fps
 
     def _read_vertex_shader(self) -> str:
         return self._load_shader(self._get_shader_file_path('vertex_shader.glsl'))
