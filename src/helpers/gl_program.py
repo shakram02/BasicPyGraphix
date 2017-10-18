@@ -1,20 +1,29 @@
 from os.path import join
 from time import sleep
+from typing import List
 
 import ModernGL
 import numpy as np
 
-from src.helpers.window_creator import WindowData
-
 
 class GlProgram:
-    def __init__(self, wnd: WindowData):
-        self.wnd = wnd
-        self.ctx = ModernGL.create_context()
+    def __init__(self):
+        self._indeces = []
+        self._vertices = []
+        self._colors = []
 
-        vertex_shader = self.ctx.vertex_shader(self._read_vertex_shader())
-        fragment_shader = self.ctx.fragment_shader(self._read_fragment_shader())
-        self.prog = self.ctx.program([vertex_shader, fragment_shader])
+        self._ibo = None
+        self._vbo = None
+        self._cbo = None
+
+    def set_wnd_data(self, wnd):
+        self._wnd = wnd
+        self._ctx = ModernGL.create_context()
+
+        vertex_shader = self._ctx.vertex_shader(self._read_vertex_shader())
+        fragment_shader = self._ctx.fragment_shader(self._read_fragment_shader())
+        self._prog = self._ctx.program([vertex_shader, fragment_shader])
+
         vertices = [
             0.0, 0.0,
             0.4, 0.4,
@@ -30,29 +39,39 @@ class GlProgram:
             1.0, 1.0, 1.0,
             0.0, 0.0, 1.0
         ]
-
         indices = [0, 1, 2, 0, 3, 4]
-        self.load_render_data(vertices, indices, colors)
 
-    def load_render_data(self, vertices, indeces, colors):
-        self.ibo = self.ctx.buffer(np.array(indeces).astype('i4').tobytes())
-        self.vbo = self.ctx.buffer(np.array(vertices).astype('f4').tobytes())
-        self.cbo = self.ctx.buffer(np.array(colors).astype('f4').tobytes())
+        self.add_shape(vertices, indices, colors)
+
+    def _load_render_data(self):
+        if self._ibo is not None and self._cbo is not None and self._vbo is not None:
+            self._ibo.orphan()
+            self._cbo.orphan()
+            self._vbo.orphan()
+
+        self._ibo = self._ctx.buffer(np.array(self._indeces).astype('i4').tobytes())
+
+        self._vbo = self._ctx.buffer(np.array(self._vertices).astype('f4').tobytes())
+        self._cbo = self._ctx.buffer(np.array(self._colors).astype('f4').tobytes())
 
         vao_content = [
-            (self.vbo, '2f', ['vert']),
-            (self.cbo, '3f', ['rgb_color'])
+            (self._vbo, '2f', ['vert']),
+            (self._cbo, '3f', ['rgb_color'])
         ]
 
-        self.vao = self.ctx.vertex_array(self.prog, vao_content, self.ibo)
+        self.vao = self._ctx.vertex_array(self._prog, vao_content, self._ibo)
 
-    def add_shape(self, vertices, indeces, colors):
-        pass
+    def add_shape(self, vertices: List[float], indeces: List[int],
+                  colors: List[int]):
+        self._indeces += indeces
+        self._vertices += vertices
+        self._colors += colors
+        self._load_render_data()
 
-    def render(self):
-        self.ctx.viewport = self.wnd.viewport
-        self.ctx.clear(0.15, 0.15, 0.15, 1.0)
-        self.vao.render(mode=ModernGL.LINE_LOOP)
+    def render(self, mode=ModernGL.TRIANGLES):
+        self._ctx.viewport = self._wnd.viewport
+        self._ctx.clear(0.15, 0.15, 0.15, 1.0)
+        self.vao.render(mode)
         sleep(0.032)  # 24 fps
 
     def _read_vertex_shader(self) -> str:

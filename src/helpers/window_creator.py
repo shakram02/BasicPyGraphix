@@ -84,7 +84,7 @@ class QGLControllerWidget(QtOpenGL.QGLWidget):
 
     def initializeGL(self):
         self.prepare_wnd_data()
-        self.app = self.app(self.wnd_data)
+        self.app.set_wnd_data(self.wnd_data)
 
     def paintGL(self):
         self.prepare_wnd_data()
