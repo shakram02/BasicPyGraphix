@@ -15,30 +15,29 @@ class GlProgram:
         vertex_shader = self.ctx.vertex_shader(self._read_vertex_shader())
         fragment_shader = self.ctx.fragment_shader(self._read_fragment_shader())
         self.prog = self.ctx.program([vertex_shader, fragment_shader])
-        self.load_render_data()
-
-    def load_render_data(self):
-        vertices = np.array([
+        vertices = [
             0.0, 0.0,
             0.4, 0.4,
             0.1, 0.4,
 
             -0.4, -0.4,
             -0.1, -0.4,
-        ])
-
-        indecies = np.array([0, 1, 2, 0, 3, 4])
-        colors = np.array([
+        ]
+        colors = [
             1.0, 1.0, 1.0,
             0.0, 1.0, 0.0,
             0.0, 0.0, 1.0,
             1.0, 1.0, 1.0,
             0.0, 0.0, 1.0
-        ])
+        ]
 
-        self.ibo = self.ctx.buffer(indecies.astype('i4').tobytes())
-        self.vbo = self.ctx.buffer(vertices.astype('f4').tobytes())
-        self.cbo = self.ctx.buffer(colors.astype('f4').tobytes())
+        indices = [0, 1, 2, 0, 3, 4]
+        self.load_render_data(vertices, indices, colors)
+
+    def load_render_data(self, vertices, indeces, colors):
+        self.ibo = self.ctx.buffer(np.array(indeces).astype('i4').tobytes())
+        self.vbo = self.ctx.buffer(np.array(vertices).astype('f4').tobytes())
+        self.cbo = self.ctx.buffer(np.array(colors).astype('f4').tobytes())
 
         vao_content = [
             (self.vbo, '2f', ['vert']),
@@ -47,10 +46,13 @@ class GlProgram:
 
         self.vao = self.ctx.vertex_array(self.prog, vao_content, self.ibo)
 
+    def add_shape(self, vertices, indeces, colors):
+        pass
+
     def render(self):
         self.ctx.viewport = self.wnd.viewport
         self.ctx.clear(0.15, 0.15, 0.15, 1.0)
-        self.vao.render()
+        self.vao.render(mode=ModernGL.LINE_LOOP)
         sleep(0.032)  # 24 fps
 
     def _read_vertex_shader(self) -> str:
