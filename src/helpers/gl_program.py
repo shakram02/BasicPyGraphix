@@ -12,9 +12,7 @@ class GlProgram:
         self.vertices = []
         self.colors = []
 
-        self._ibo = None
-        self._vbo = None
-        self._cbo = None
+        self._vaos = []
 
     def set_wnd_data(self, wnd):
         self._wnd = wnd
@@ -27,40 +25,38 @@ class GlProgram:
         self._load_render_data()
 
     def _load_render_data(self):
-        # if self._ibo is not None and self._cbo is not None and self._vbo is not None:
-        #     self._ibo.orphan()
-        #     self._cbo.orphan()
-        #     self._vbo.orphan()
-        vertices, indices, colors, offsets, self.count = self.on_add_shape_ready()
+        shapes = self.on_add_shape_ready()
+        for shape in shapes:
+            shape_vao = self.get_vao_of_shape(shape)
+            self._vaos.append(shape_vao)
 
-        self._ibo = self._ctx.buffer(np.array(indices).astype('i4').tobytes())
+        # self.mvp = self._prog.uniforms['MVP']
+        width, height = self._wnd.size
+        # self.mvp.value = (1, 1, 1, 1)
 
-        self._vbo = self._ctx.buffer(np.array(vertices).astype('f4').tobytes())
-        self._cbo = self._ctx.buffer(np.array(colors).astype('f4').tobytes())
-        self._off = self._ctx.buffer(np.array(offsets).astype('f4').tobytes())
+    def get_vao_of_shape(self, shape):
+        # vertices, indices, colors, offsets = shape.unpack()
+        vertices, indices, colors = shape.unpack()
+        ibo = self._ctx.buffer(np.array(indices).astype('i4').tobytes())
+        vbo = self._ctx.buffer(np.array(vertices).astype('f4').tobytes())
+        cbo = self._ctx.buffer(np.array(colors).astype('f4').tobytes())
+        # offset = self._ctx.buffer(np.array(offsets).astype('f4').tobytes())
 
         vao_content = [
-            (self._vbo, '2f', ['vert']),
-            (self._cbo, '3f', ['rgb_color']),
-            (self._off, '2f/i', ['in_pos'])
+            (vbo, '3f', ['vert']),
+            (cbo, '3f', ['rgb_color']),
+            # (offset, '3f/i', ['in_pos'])
         ]
 
-        self.vao = self._ctx.vertex_array(self._prog, vao_content, self._ibo)
-
-    # We can't add the data dynamically, because the main thread blocks on render loop
-    # def add_shape(self, vertices: List[float], indeces: List[int],
-    #               colors: List[int]):
-    #     self._indeces += indeces
-    #     self._vertices += vertices
-    #     self._colors += colors
-    #     self._load_render_data()
+        return self._ctx.vertex_array(self._prog, vao_content, ibo)
 
     def render(self, mode=ModernGL.TRIANGLE_FAN):
         sleep(0.032)  # 24 fps
         self._ctx.viewport = self._wnd.viewport
         self._ctx.clear(0.15, 0.15, 0.15, 1.0)
 
-        self.vao.render(mode, instances=self.count)
+        for vao in self._vaos:
+            vao.render(mode)
 
     def _read_vertex_shader(self) -> str:
         return self._load_shader(self._get_shader_file_path('vertex_shader.glsl'))

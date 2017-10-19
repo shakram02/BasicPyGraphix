@@ -2,67 +2,57 @@ from typing import List
 
 
 class Shape:
-    def __init__(self, vertices, indices, colors=None, offsets=None, dimen_count=2):
+    def __init__(self, vertices: List, indices: List, colors=None, offsets=None, dimen_count=3):
         self._vertex_dimen = dimen_count
         self._vertices: List = vertices
         self._indices: List = indices
-        self._offsets = offsets if not None else [0.0, 0.0]
-        self._vertex_colors = colors if not None else self.get_black_fill()
-
-    def add_copy_at(self, offset_vals):
-        if isinstance(offset_vals, list):
-            if len(offset_vals[0]) != self._vertex_dimen:
-                raise ValueError("Invalid dimensions")
-
-            self._offsets.extend(offset_vals)
-        else:
-            if len(offset_vals) != self._vertex_dimen:
-                raise ValueError("Invalid dimensions")
-
-            self._offsets.append(offset_vals)
-
-    def add_indexed_render(self, index_points):
-
-        if isinstance(index_points, list):
-            # Check each element in array
-            for point in index_points:
-                if point >= len(self._vertices):
-                    raise ValueError("Index out of range")
-
-            # Add multiple points
-            self._indices.extend(index_points)
-        else:
-            if index_points >= len(self._vertices):
-                raise ValueError("Index out of range")
-            # Add just one point
-            self._indices.append(index_points)
-
-    @property
-    def instance_count(self):
-        return len(self._offsets)
-
-    @property
-    def indices(self):
-        return self._indices
+        self._vertex_colors = colors
 
     @property
     def vertices(self):
         return self._vertices
 
-    @property
-    def vertex_colors(self):
-        return self._vertex_colors
+    def unpack(self):
+        return self._vertices, self._indices, self._vertex_colors
 
-    @property
-    def offsets(self):
-        return self._offsets
+    def fill_color(self, r, g, b):
+        pass
 
-    def get_black_fill(self):
-        vertex_count = len(self._vertices) // self._vertex_dimen
-        channel_count = 3  # r,g,b
+    def fill_points(self, vertex_colors):
+        pass
 
-        return [0.0 for x in range(vertex_count * channel_count)]
+
+class Rectangle(Shape):
+    def __init__(self, origin, width, height, z_order):
+        self._indices = [0, 1, 2, 3, 0]
+        self._zorder = z_order
+        self._vertices = self._create_rect_at(origin, width, height, self._zorder)
+        self._vertex_colors = []
+        super().__init__(self._vertices, self._indices)
+
+    def fill_color(self, r, g, b):
+        self._vertex_colors = 4 * [r, g, b]
+
+    def fill_points(self, vertex_colors):
+        self._vertex_colors = vertex_colors
+
+    @staticmethod
+    def _create_rect_at(origin, width, height, z_order):
+        x_first_vert, y_first_vert = origin
+        return [
+            x_first_vert, y_first_vert, z_order,
+
+            (x_first_vert + width), y_first_vert, z_order,
+            (x_first_vert + width), (y_first_vert - height), z_order,
+            x_first_vert, (y_first_vert - height), z_order
+        ]
+
+    def unpack(self):
+        if len(self._vertex_colors) == 0:
+            self._vertex_colors = 4 * [0.0, 0.0, 0.0]
+        return self.vertices, self._indices, self._vertex_colors
 
 
 class ShapeComposer:
+    # TODO
     pass
