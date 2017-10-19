@@ -1,5 +1,5 @@
 import src.main as m
-from src.helpers.gl_program_static import GlProgram
+from renderres.gl_program_static import GlProgram
 from src.helpers.misc import repeat_on_quadrants
 from src.helpers.shape_helpers import Rectangle
 

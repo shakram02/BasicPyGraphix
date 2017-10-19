@@ -1,4 +1,4 @@
-from src.helpers.gl_program_static import GlProgram
+from renderres.gl_program_static import GlProgram
 from src.helpers.shape_helpers import Rectangle
 from src.helpers.window_creator import run_program
 

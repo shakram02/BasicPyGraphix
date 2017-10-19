@@ -1,4 +1,4 @@
-from src.helpers.gl_program_base import GlBaseProgram
+from renderres.gl_program_base import GlBaseProgram
 
 
 class GlProgram(GlBaseProgram):
