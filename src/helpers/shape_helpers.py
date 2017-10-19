@@ -2,7 +2,7 @@ from typing import List
 
 
 class Shape:
-    def __init__(self, vertices: List, indices: List, colors=None, offsets=None, dimen_count=3):
+    def __init__(self, vertices: List, indices: List, colors=None, dimen_count=3):
         self._vertex_dimen = dimen_count
         self._vertices: List = vertices
         self._indices: List = indices
