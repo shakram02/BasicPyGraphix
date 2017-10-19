@@ -1,3 +1,4 @@
+from src.helpers.gl_program_static import GlProgram
 from src.helpers.shape_helpers import Rectangle
 import src.main as m
 
@@ -12,7 +13,6 @@ def add_shapes():
     return [r, r1]
 
 
-m.shape_loader = add_shapes
-
 if __name__ == "__main__":
+    m.PROGRAM_INSTANCE = GlProgram(add_shapes)
     m.main()
