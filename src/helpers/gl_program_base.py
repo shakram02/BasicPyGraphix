@@ -86,8 +86,10 @@ class GlBaseProgram:
     def _get_shader_file_path(file_name, folder_name='shaders'):
         import os
         dot_path = './'
+        trials = 0
 
-        while folder_name not in os.listdir(dot_path):
+        while folder_name not in os.listdir(dot_path) and trials < 4:
             dot_path = "." + dot_path
+            trials += 1
 
         return join(dot_path, folder_name, file_name)
