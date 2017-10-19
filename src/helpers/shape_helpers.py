@@ -39,12 +39,15 @@ class Rectangle(Shape):
     @staticmethod
     def _create_rect_at(origin, width, height, z_order):
         x_first_vert, y_first_vert = origin
-        return [
-            x_first_vert, y_first_vert, z_order,
+        width_delta = width / 2
+        height_delta = height / 2
 
-            (x_first_vert + width), y_first_vert, z_order,
-            (x_first_vert + width), (y_first_vert - height), z_order,
-            x_first_vert, (y_first_vert - height), z_order
+        return [
+            x_first_vert - width_delta, y_first_vert + height_delta, z_order,
+            x_first_vert + width_delta, y_first_vert + height_delta, z_order,
+
+            x_first_vert + width_delta, y_first_vert - height_delta, z_order,
+            x_first_vert - width_delta, y_first_vert - height_delta, z_order
         ]
 
     def unpack(self):
