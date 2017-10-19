@@ -2,6 +2,8 @@ from src.helpers.gl_program_static import GlProgram
 from src.helpers.shape_helpers import Rectangle
 from src.helpers.window_creator import run_program
 
+PROGRAM_INSTANCE = None
+
 
 def shape_loader():
     r = Rectangle([0.0, 0.0], 0.4, 0.1, 0.0)
@@ -9,8 +11,11 @@ def shape_loader():
 
 
 def main():
-    p = GlProgram(shape_loader)
-    run_program(p, size=(720, 328), title="Check")
+    global PROGRAM_INSTANCE
+    if PROGRAM_INSTANCE is None:
+        PROGRAM_INSTANCE = GlProgram(shape_loader)
+
+    run_program(PROGRAM_INSTANCE, size=(720, 328), title="Check")
 
 
 if __name__ == "__main__":
