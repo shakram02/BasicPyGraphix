@@ -2,11 +2,11 @@ from typing import List
 
 
 class Shape:
-    def __init__(self, vertices: List, indices: List, colors=None, dimen_count=3):
+    def __init__(self, vertices: List, indices: List, dimen_count=3):
         self._vertex_dimen = dimen_count
         self._vertices: List = vertices
         self._indices: List = indices
-        self._vertex_colors = colors
+        self._vertex_colors = []
 
     @property
     def vertices(self):
@@ -27,7 +27,7 @@ class Rectangle(Shape):
         self._indices = [0, 1, 2, 3, 0]
         self._zorder = z_order
         self._vertices = self._create_rect_at(origin, width, height, self._zorder)
-        self._vertex_colors = []
+
         super().__init__(self._vertices, self._indices)
 
     def fill_color(self, r, g, b):
@@ -49,10 +49,15 @@ class Rectangle(Shape):
 
     def unpack(self):
         if len(self._vertex_colors) == 0:
-            self._vertex_colors = 4 * [0.0, 0.0, 0.0]
+            self._vertex_colors = 4 * [0.0, 1.0, 0.0]
         return self.vertices, self._indices, self._vertex_colors
 
 
 class ShapeComposer:
-    # TODO
+    """
+    Combines multiple shapes into one, handling:
+        - vertices
+        - colors
+        - updating index vertices while merging
+    """
     pass
