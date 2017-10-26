@@ -80,20 +80,14 @@ class GlBaseProgram:
             vao.render(mode)
 
     def _read_vertex_shader(self) -> str:
-        return self._load_shader(self._get_shader_file_path('vertex_shader.glsl'))
+        return self._load_shader('vertex_shader.glsl')
 
     def _read_fragment_shader(self) -> str:
-        return self._load_shader(self._get_shader_file_path('fragment_shader.glsl'))
+        return self._load_shader('fragment_shader.glsl')
 
     @staticmethod
-    def _load_shader(relative_path):
-        file_desc = open(relative_path)
-        shader_prog = ''.join(file_desc.readlines())
-        file_desc.close()
-        return shader_prog
+    def _load_shader(file_name, folder_name='shaders'):
 
-    @staticmethod
-    def _get_shader_file_path(file_name, folder_name='shaders'):
         import os
         dot_path = './'
         trials = 0
@@ -102,4 +96,9 @@ class GlBaseProgram:
             dot_path = "." + dot_path
             trials += 1
 
-        return join(dot_path, folder_name, file_name)
+        relative_path = join(dot_path, folder_name, file_name)
+
+        file_desc = open(relative_path)
+        shader_prog = ''.join(file_desc.readlines())
+        file_desc.close()
+        return shader_prog
