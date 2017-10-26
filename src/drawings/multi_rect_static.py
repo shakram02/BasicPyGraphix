@@ -1,5 +1,5 @@
 import src.main as m
-from renderres.gl_program_static import GlProgram
+from renderres.gl_program_rotating import GlProgram
 from src.helpers.misc import repeat_on_quadrants
 from src.helpers.shape_helpers import Rectangle
 
@@ -26,9 +26,13 @@ def add_shapes():
     rect_width = 0.03
     rect_height = 0.03
     rects = []
-    rects += symmertically_distributed_rectangles(0.23, 0.23, rect_width, rect_height)
+    rects += symmertically_distributed_rectangles(0.08, 0.08, rect_width, rect_height)
     rects += symmertically_distributed_rectangles(0.63, 0.08, rect_width, rect_height)
     rects += symmertically_distributed_rectangles(0.08, 0.63, rect_width, rect_height)
+    r = Rectangle([0, 0], 0.7, 0.2)
+    r.fill_color(1, 0, 0)
+
+    rects += [r]
     return rects
 
 
