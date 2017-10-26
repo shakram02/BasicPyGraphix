@@ -26,6 +26,14 @@ class ValueLimiter:
         self.final_val += self.delta
         self.direction = ValueLimiter.Direction.Increasing
 
+    def decrement(self):
+        if self.final_val - self.delta < self.min_val:
+            return
+
+        # Negative motion if we didn't hit the limit
+        self.final_val -= self.delta
+        self.direction = ValueLimiter.Direction.Decreasing
+
     def _update(self):
         if self.direction == ValueLimiter.Direction.Increasing and self.position < self.final_val:
             self.position += self._internal_step
