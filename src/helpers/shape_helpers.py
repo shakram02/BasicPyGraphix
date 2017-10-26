@@ -23,7 +23,7 @@ class Shape:
 
 
 class Rectangle(Shape):
-    def __init__(self, origin, width, height, z_order):
+    def __init__(self, origin, width, height, z_order=0.0):
         self._indices = [0, 1, 2, 3, 0]
         self._zorder = z_order
         self._vertices = self._create_rect_at(origin, width, height, self._zorder)
