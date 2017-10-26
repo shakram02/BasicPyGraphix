@@ -4,6 +4,8 @@ from time import sleep
 import ModernGL
 import numpy as np
 
+from src.helpers.window_creator import WindowData
+
 
 class GlBaseProgram:
     def __init__(self, on_add_shape_ready):
@@ -13,7 +15,7 @@ class GlBaseProgram:
         self._g = 0.15
         self._b = 0.15
 
-    def set_wnd_data(self, wnd):
+    def set_wnd_data(self, wnd: WindowData):
         """
         Called by the windowing framework, all shapes must be loaded
         here
@@ -23,11 +25,14 @@ class GlBaseProgram:
         self._wnd = wnd
         self._ctx = ModernGL.create_context()
 
+        self._load_shaders()
+        self._load_render_data()
+
+    def _load_shaders(self):
         vertex_shader = self._ctx.vertex_shader(self._read_vertex_shader())
         fragment_shader = self._ctx.fragment_shader(self._read_fragment_shader())
 
         self._prog = self._ctx.program([vertex_shader, fragment_shader])
-        self._load_render_data()
 
     def _load_render_data(self):
         """
@@ -50,7 +55,10 @@ class GlBaseProgram:
         ibo = self._ctx.buffer(np.array(indices).astype('i4').tobytes())
         vbo = self._ctx.buffer(np.array(vertices).astype('f4').tobytes())
         cbo = self._ctx.buffer(np.array(colors).astype('f4').tobytes())
+        aspect_correction = self._prog.uniforms['aspect_ratio_correction']
 
+        # aspect_correction.value = ((height / width), 1)
+        aspect_correction.value = (1, 1)
         vao_content = [
             (vbo, '3f', ['vert']),
             (cbo, '3f', ['rgb_color']),
@@ -80,7 +88,9 @@ class GlBaseProgram:
     @staticmethod
     def _load_shader(relative_path):
         file_desc = open(relative_path)
-        return ''.join(file_desc.readlines())
+        shader_prog = ''.join(file_desc.readlines())
+        file_desc.close()
+        return shader_prog
 
     @staticmethod
     def _get_shader_file_path(file_name, folder_name='shaders'):
