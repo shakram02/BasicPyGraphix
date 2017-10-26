@@ -15,6 +15,10 @@ class GlBaseProgram:
         self._g = 0.15
         self._b = 0.15
 
+        self._wnd: WindowData = None
+        self._ctx: ModernGL.Context = None
+        self._prog: ModernGL.Program = None
+
     def set_wnd_data(self, wnd: WindowData):
         """
         Called by the windowing framework, all shapes must be loaded
@@ -55,10 +59,12 @@ class GlBaseProgram:
         ibo = self._ctx.buffer(np.array(indices).astype('i4').tobytes())
         vbo = self._ctx.buffer(np.array(vertices).astype('f4').tobytes())
         cbo = self._ctx.buffer(np.array(colors).astype('f4').tobytes())
-        aspect_correction = self._prog.uniforms['aspect_ratio_correction']
+
+        # TODO, projection will be used
+        # aspect_correction = self._prog.uniforms['aspect_ratio_correction']
 
         # aspect_correction.value = ((height / width), 1)
-        aspect_correction.value = (1, 1)
+        # aspect_correction.value = (1, 1)
         vao_content = [
             (vbo, '3f', ['vert']),
             (cbo, '3f', ['rgb_color']),
